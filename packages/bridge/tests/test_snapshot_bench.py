@@ -147,3 +147,22 @@ def test_snapshot_stats_accuracy(tmp_path: Path) -> None:
     bridge.close()
     assert stats["total"] == 40
     assert stats["domains"] >= 1
+
+def test_snapshot_zero_length_entity_id(tmp_path: Path) -> None:
+    """Empty entity ID raises clear error."""
+    from hiri_bridge.snapshot import SnapshotBridge
+    bridge = SnapshotBridge(tmp_path / "zero.db")
+    with pytest.raises(ValueError, match="entity_id"):
+        bridge.upsert("", {"value": 1})
+    bridge.close()
+
+def test_snapshot_special_characters_in_id(tmp_path: Path) -> None:
+    """Entity IDs with dots, hyphens, underscores work correctly."""
+    from hiri_bridge.snapshot import SnapshotBridge
+    bridge = SnapshotBridge(tmp_path / "special.db")
+    ids = ["sensor.a-b_c.d", "climate.room-1_2", "cover.blind_3-4.a"]
+    for eid in ids:
+        bridge.upsert(eid, {"test": True})
+    for eid in ids:
+        assert bridge.get(eid) is not None
+    bridge.close()
