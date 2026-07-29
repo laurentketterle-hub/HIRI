@@ -37,7 +37,7 @@ class TestSnapshotDiff:
         assert seed_count > 0, "Seed should produce devices"
 
         # Append new devices
-        reg.register(
+        reg.upsert(
             Device(
                 id="sensor.boots_test_a",
                 name="Snapshot test sensor A",
@@ -46,7 +46,7 @@ class TestSnapshotDiff:
                 attributes={"unit_of_measurement": "°C"},
             )
         )
-        reg.register(
+        reg.upsert(
             Device(
                 id="switch.boots_test_b",
                 name="Snapshot test switch B",
@@ -79,7 +79,7 @@ class TestSnapshotDiff:
         ]
 
         for device_id, device_data in extra_devices:
-            reg.register(
+            reg.upsert(
                 Device(
                     id=device_id,
                     name=device_data["name"],
@@ -98,14 +98,14 @@ class TestSnapshotDiff:
         devices_file = tmp_path / "devices.json"
         reg1 = DeviceRegistry(path=devices_file)
         reg1.seed()
-        reg1.register(
+        reg1.upsert(
             Device(id="sensor.reload_test", name="Reload test", domain="sensor", state={"state": 42.0})
         )
         count1 = reg1.stats()["total"]
 
         # Reload from same file
         reg2 = DeviceRegistry(path=devices_file)
-        reg2.load()  # or seed() which should merge
+        reg2.load_or_seed()
         count2 = len(reg2.list())
 
         assert count2 >= count1, (
@@ -120,7 +120,7 @@ class TestSnapshotDiff:
         prev_count = reg.stats()["total"]
 
         for i in range(3):
-            reg.register(
+            reg.upsert(
                 Device(
                     id=f"sensor.seq_{i}",
                     name=f"Seq device {i}",
@@ -162,7 +162,7 @@ class TestAntiTruncate:
         count_before = reg.stats()["total"]
 
         # Register same ID with different state
-        reg.register(
+        reg.upsert(
             Device(
                 id="light.living_main",
                 name="Updated light",
