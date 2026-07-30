@@ -216,13 +216,36 @@ def devices_sim_history(
 @devices_app.command("export")
 def devices_export(
     out: Path = typer.Option(..., "--out", "-o", help="Output JSON file path"),
+    domain: str | None = typer.Option(None, "--domain", "-d", help="Filter by device domain"),
+    area: str | None = typer.Option(None, "--area", "-a", help="Filter by room/area"),
 ) -> None:
-    """Export device registry as a JSON snapshot (no tokens/secrets)."""
+    """Export device registry as a JSON snapshot (no tokens/secrets).
+
+    Optionally filter by --domain (e.g. light, sensor) and/or --area (e.g. living, farm).
+    """
     reg = _registry()
-    snapshot = [d.model_dump() for d in reg.list()]
+    devices = reg.list()
+
+    if domain:
+        devices = [d for d in devices if d.domain == domain]
+    if area:
+        devices = [
+            d
+            for d in devices
+            if str(getattr(d, "area", None) or (d.attributes or {}).get("area") or "").lower()
+            == area.strip().lower()
+        ]
+
+    snapshot = [d.model_dump() for d in devices]
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(snapshot, indent=2) + "\n", encoding="utf-8")
-    console.print(f"[green]Wrote[/green] {out} devices={len(snapshot)}")
+    filters = []
+    if domain:
+        filters.append(f"domain={domain}")
+    if area:
+        filters.append(f"area={area}")
+    tag = f" ({', '.join(filters)})" if filters else ""
+    console.print(f"[green]Wrote[/green] {out} devices={len(snapshot)}{tag}")
 
 
 @ha_app.command("discovery")
