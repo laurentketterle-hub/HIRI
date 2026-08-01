@@ -218,10 +218,12 @@ def devices_export(
     out: Path = typer.Option(..., "--out", "-o", help="Output JSON file path"),
     domain: str | None = typer.Option(None, "--domain", "-d", help="Filter by device domain"),
     area: str | None = typer.Option(None, "--area", "-a", help="Filter by room/area"),
+    online_only: bool = typer.Option(False, "--online-only", help="Only export online devices"),
 ) -> None:
     """Export device registry as a JSON snapshot (no tokens/secrets).
 
-    Optionally filter by --domain (e.g. light, sensor) and/or --area (e.g. living, farm).
+    Optionally filter by --domain (e.g. light, sensor), --area (e.g. living, farm),
+    and/or --online-only.
     """
     reg = _registry()
     devices = reg.list()
@@ -235,6 +237,8 @@ def devices_export(
             if str(getattr(d, "area", None) or (d.attributes or {}).get("area") or "").lower()
             == area.strip().lower()
         ]
+    if online_only:
+        devices = [d for d in devices if getattr(d, "online", True)]
 
     snapshot = [d.model_dump() for d in devices]
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -244,6 +248,8 @@ def devices_export(
         filters.append(f"domain={domain}")
     if area:
         filters.append(f"area={area}")
+    if online_only:
+        filters.append("online-only")
     tag = f" ({', '.join(filters)})" if filters else ""
     console.print(f"[green]Wrote[/green] {out} devices={len(snapshot)}{tag}")
 

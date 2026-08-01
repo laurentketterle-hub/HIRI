@@ -125,3 +125,39 @@ def test_devices_export_filter_domain_no_match(tmp_path: Path) -> None:
     data = json.loads(out.read_text(encoding="utf-8"))
     assert data == []
     assert "devices=0" in result.stdout
+
+
+def test_devices_export_filter_online_only(tmp_path: Path) -> None:
+    """export --online-only returns only online devices."""
+    out = tmp_path / "online.json"
+    result = subprocess.run(
+        [sys.executable, "-m", "hiri_bridge.cli", "devices", "export",
+         "--out", str(out), "--online-only"],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, f"stdout={result.stdout} stderr={result.stderr}"
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert len(data) >= 1
+    # All devices should be online
+    for d in data:
+        assert d.get("online", True), f"Expected online=True, got {d.get('online')} for {d['id']}"
+    assert "online-only" in result.stdout
+
+
+def test_devices_export_filter_online_and_domain(tmp_path: Path) -> None:
+    """export --online-only --domain switch returns only online switches."""
+    out = tmp_path / "online_switches.json"
+    result = subprocess.run(
+        [sys.executable, "-m", "hiri_bridge.cli", "devices", "export",
+         "--out", str(out), "--online-only", "--domain", "switch"],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, f"stdout={result.stdout} stderr={result.stderr}"
+    data = json.loads(out.read_text(encoding="utf-8"))
+    for d in data:
+        assert d["domain"] == "switch"
+        assert d.get("online", True), f"Expected online=True for {d['id']}"
+    assert "domain=switch" in result.stdout
+    assert "online-only" in result.stdout
