@@ -6,11 +6,10 @@ import sys
 from pathlib import Path
 
 
-
 def test_devices_export_writes_json(tmp_path: Path) -> None:
     """hiri-bridge devices export --out writes device registry snapshot."""
     out = tmp_path / "snapshot.json"
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: PLW1510
         [sys.executable, "-m", "hiri_bridge.cli", "devices", "export", "--out", str(out)],
         capture_output=True,
         text=True,
@@ -24,7 +23,17 @@ def test_devices_export_writes_json(tmp_path: Path) -> None:
 
     # Check structure of first device
     d = data[0]
-    for field in ("id", "name", "domain", "manufacturer", "model", "area", "online", "state", "adapter"):
+    for field in (
+        "id",
+        "name",
+        "domain",
+        "manufacturer",
+        "model",
+        "area",
+        "online",
+        "state",
+        "adapter",
+    ):
         assert field in d, f"Device missing field: {field}"
 
     # Verify no tokens/secrets leaked
@@ -39,7 +48,7 @@ def test_devices_export_creates_parent_dirs(tmp_path: Path) -> None:
     """export --out creates parent directories if they don't exist."""
     out = tmp_path / "nested" / "deep" / "snapshot.json"
     assert not out.parent.exists()
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: PLW1510
         [sys.executable, "-m", "hiri_bridge.cli", "devices", "export", "--out", str(out)],
         capture_output=True,
         text=True,
@@ -50,7 +59,7 @@ def test_devices_export_creates_parent_dirs(tmp_path: Path) -> None:
 
 def test_devices_export_requires_out_option() -> None:
     """export command requires --out argument."""
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: PLW1510
         [sys.executable, "-m", "hiri_bridge.cli", "devices", "export"],
         capture_output=True,
         text=True,

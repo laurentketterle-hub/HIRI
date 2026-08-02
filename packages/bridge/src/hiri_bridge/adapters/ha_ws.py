@@ -18,7 +18,9 @@ class HomeAssistantWebSocketAdapter:
         base_url: str | None = None,
         token: str | None = None,
     ):
-        self.base_url = (base_url or os.environ.get("HIRI_HA_URL", "http://homeassistant.local:8123")).rstrip("/")
+        self.base_url = (
+            base_url or os.environ.get("HIRI_HA_URL", "http://homeassistant.local:8123")
+        ).rstrip("/")
         self.token = token if token is not None else os.environ.get("HIRI_HA_TOKEN", "")
 
     def status(self) -> str:
@@ -110,7 +112,7 @@ class HomeAssistantWebSocketAdapter:
                     message = json.loads(raw)
                     if sync_event_to_registry(registry, message, adapter=self):
                         synced += 1
-        except Exception:
+        except Exception:  # noqa: BLE001
             return synced
         return synced
 

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from typing import Callable
+from collections.abc import Callable
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
@@ -35,9 +35,7 @@ class OptionalTokenMiddleware(BaseHTTPMiddleware):
             "/ha/discovery",
             "/adapters",
         }
-        open_get_prefix = method == "GET" and (
-            path.startswith("/devices/") or path.startswith("/adapters/")
-        )
+        open_get_prefix = method == "GET" and path.startswith(("/devices/", "/adapters/"))
         if open_get or open_get_prefix:
             return await call_next(request)
         if method in {"POST", "PUT", "PATCH", "DELETE"}:

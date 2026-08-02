@@ -63,7 +63,9 @@ def demo_cmd() -> None:
     tuya = import_from_adapter("tuya")
     for d in z2m + tuya:
         reg.upsert(d)
-    console.print(f"[cyan]imported[/cyan] z2m={len(z2m)} tuya={len(tuya)} total={reg.stats()['total']}")
+    console.print(
+        f"[cyan]imported[/cyan] z2m={len(z2m)} tuya={len(tuya)} total={reg.stats()['total']}"
+    )
     mqtt = MqttDiscoveryPublisher()
     dry = mqtt.publish(reg.list()[:5], dry_run=True)
     console.print(
@@ -138,12 +140,16 @@ def devices_stats() -> None:
 def devices_search(
     query: str = typer.Argument(..., help="Substring over id/name/area/domain/manufacturer/model"),
     limit: int = typer.Option(30, "--limit", "-n", min=1, max=200),
-    manufacturer: str | None = typer.Option(None, "--manufacturer", "-m", help="Filter by manufacturer"),
+    manufacturer: str | None = typer.Option(
+        None, "--manufacturer", "-m", help="Filter by manufacturer"
+    ),
 ) -> None:
     """Search devices by id, name, area, domain, manufacturer, or model."""
     q = query.strip().lower()
     reg = _registry()
-    table = Table(title=f"Device search: {query}" + (f" mfg={manufacturer}" if manufacturer else ""))
+    table = Table(
+        title=f"Device search: {query}" + (f" mfg={manufacturer}" if manufacturer else "")
+    )
     table.add_column("ID")
     table.add_column("Domain")
     table.add_column("Area")
@@ -215,7 +221,7 @@ def devices_sim_history(
 
 @devices_app.command("export")
 def devices_export(
-    out: Path = typer.Option(..., "--out", "-o", help="Output JSON file path"),
+    out: Path = typer.Option(..., "--out", "-o", help="Output JSON file path"),  # noqa: B008
 ) -> None:
     """Export device registry as a JSON snapshot (no tokens/secrets)."""
     reg = _registry()
@@ -226,7 +232,7 @@ def devices_export(
 
 
 @ha_app.command("discovery")
-def ha_discovery(out: Path | None = typer.Option(None, "--out", "-o")) -> None:
+def ha_discovery(out: Path | None = typer.Option(None, "--out", "-o")) -> None:  # noqa: B008
     reg = _registry()
     disc = export_discovery(reg.list())
     path = out or (OUT_DIR / "discovery.json")
@@ -237,7 +243,7 @@ def ha_discovery(out: Path | None = typer.Option(None, "--out", "-o")) -> None:
 
 @ha_app.command("entity-mapping")
 def ha_entity_mapping(
-    out: Path | None = typer.Option(None, "--out", "-o"),
+    out: Path | None = typer.Option(None, "--out", "-o"),  # noqa: B008
 ) -> None:
     """Export device-to-entity mapping for HA configuration."""
     reg = _registry()
@@ -296,7 +302,9 @@ def adapters_import(
         raise typer.Exit(1) from exc
     for d in devices:
         reg.upsert(d)
-    console.print(f"[green]Imported[/green] {len(devices)} from {name} · total={reg.stats()['total']}")
+    console.print(
+        f"[green]Imported[/green] {len(devices)} from {name} · total={reg.stats()['total']}"
+    )
 
 
 @mqtt_app.command("publish")
@@ -311,7 +319,9 @@ def mqtt_publish(
     result = pub.publish(reg.list(), dry_run=dry_run)
     console.print_json(data={k: v for k, v in result.items() if k != "messages"})
     if dry_run and result.get("messages"):
-        console.print(f"[dim]sample topics:[/dim] {', '.join(m['topic'] for m in result['messages'][:5])}")
+        console.print(
+            f"[dim]sample topics:[/dim] {', '.join(m['topic'] for m in result['messages'][:5])}"
+        )
 
 
 @app.command("serve")

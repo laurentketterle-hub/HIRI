@@ -17,12 +17,15 @@ class HomeAssistantRestAdapter:
         if not self.token:
             return []
         try:
-            import urllib.request
             import json
+            import urllib.request
 
             req = urllib.request.Request(
                 f"{self.base_url}/api/states",
-                headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"},
+                headers={
+                    "Authorization": f"Bearer {self.token}",
+                    "Content-Type": "application/json",
+                },
             )
             with urllib.request.urlopen(req, timeout=5) as resp:
                 states = json.loads(resp.read().decode("utf-8"))
@@ -43,7 +46,7 @@ class HomeAssistantRestAdapter:
                     )
                 )
             return devices
-        except Exception:
+        except Exception:  # noqa: BLE001
             return []
 
     def push_state(self, device: Device) -> None:

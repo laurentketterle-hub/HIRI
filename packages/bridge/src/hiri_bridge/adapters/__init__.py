@@ -2,4 +2,4 @@
 
 from hiri_bridge.adapters.catalog import import_from_adapter, list_adapters
 
-__all__ = ["list_adapters", "import_from_adapter"]
+__all__ = ["import_from_adapter", "list_adapters"]

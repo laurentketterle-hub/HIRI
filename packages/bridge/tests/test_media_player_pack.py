@@ -7,7 +7,6 @@ from pathlib import Path
 from hiri_bridge.devices.registry import DeviceRegistry
 from hiri_bridge.ha.discovery import export_discovery
 
-
 EXPECTED_MEDIA_PLAYER_PACK = {
     "media_player.family_room_tv": {
         "model": "HIRI-TV",

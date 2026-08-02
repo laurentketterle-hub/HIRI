@@ -42,11 +42,7 @@ def test_instant_sensor_stays_measurement(tmp_path: Path) -> None:
 def test_air_quality_sensors_present(tmp_path: Path) -> None:
     reg = DeviceRegistry(path=tmp_path / "devices.json")
     reg.seed()
-    classes = {
-        d.attributes.get("device_class")
-        for d in reg.list()
-        if d.domain == "sensor"
-    }
+    classes = {d.attributes.get("device_class") for d in reg.list() if d.domain == "sensor"}
     assert "pm25" in classes
     assert "carbon_dioxide" in classes
     assert "energy" in classes

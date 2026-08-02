@@ -66,7 +66,11 @@ def tick_farm_sensors(devices: list[Any]) -> list[dict[str, Any]]:
         reading: dict[str, Any] | None = None
         if "SOIL" in mid or "soil" in did:
             reading = soil_moisture_reading(seed=float(i))
-            d.state = {**dict(d.state or {}), "state": reading["moisture_pct"], "status": reading["status"]}
+            d.state = {
+                **dict(d.state or {}),
+                "state": reading["moisture_pct"],
+                "status": reading["status"],
+            }
             updated.append({"id": did, **reading})
         elif "TH" in mid or "DHT" in mid or "temp" in did or "greenhouse" in did:
             reading = dht22_reading(seed=float(i + 3))

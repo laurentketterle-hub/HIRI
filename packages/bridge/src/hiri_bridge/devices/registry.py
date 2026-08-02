@@ -739,9 +739,7 @@ class DeviceRegistry:
                 if gang and gang in dev.attributes.get("gangs", []):
                     state[gang] = gang_state
                     gangs = dev.attributes.get("gangs", [])
-                    state["state"] = "on" if any(
-                        state.get(g) == "on" for g in gangs
-                    ) else "off"
+                    state["state"] = "on" if any(state.get(g) == "on" for g in gangs) else "off"
         elif domain == "lock":
             if action == "lock":
                 state["state"] = "locked"
@@ -797,7 +795,9 @@ class DeviceRegistry:
         elif domain == "vacuum":
             if action in {"start", "return_to_base", "dock"}:
                 state["state"] = "cleaning" if action == "start" else "docked"
-            if "fan_speed" in data and data["fan_speed"] in dev.attributes.get("fan_speed_list", []):
+            if "fan_speed" in data and data["fan_speed"] in dev.attributes.get(
+                "fan_speed_list", []
+            ):
                 state["fan_speed"] = data["fan_speed"]
             if action == "clean_room" and data.get("room") in dev.attributes.get("rooms", []):
                 state["state"] = "cleaning"
@@ -824,7 +824,9 @@ class DeviceRegistry:
                     state.pop("last_error", None)
         elif domain == "media_player":
             if action in {"turn_on", "turn_off", "play", "pause"}:
-                state["state"] = "off" if action == "turn_off" else "playing" if action == "play" else "idle"
+                state["state"] = (
+                    "off" if action == "turn_off" else "playing" if action == "play" else "idle"
+                )
             if "volume_level" in data:
                 state["volume_level"] = data["volume_level"]
             if "source" in data and data["source"] in dev.attributes.get("source_list", []):
