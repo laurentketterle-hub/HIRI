@@ -1,5 +1,6 @@
 import asyncio
 
+
 class WebRTCStreamProxy:
     def __init__(self, rtsp_url):
         self.rtsp_url = rtsp_url
@@ -24,6 +25,7 @@ class WebRTCStreamProxy:
         if client_id in self.clients:
             self.clients.remove(client_id)
             print(f"Removed client {client_id}")
+
 
 async def main():
     proxy = WebRTCStreamProxy("rtsp://admin:admin@192.168.1.100:554/stream")
