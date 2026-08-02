@@ -32,4 +32,4 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install ruff
-      - run: ruff format --check src/ packages/bridge/src/ packages/bridge/tests/
+      - run: ruff format --check --config packages/bridge/pyproject.toml src/ packages/bridge/src/ packages/bridge/tests/
