@@ -291,7 +291,8 @@ class TestHADiscoveryIntegration:
 
         # Each discovery entry has required HA fields
         for entry in discovery:
-            assert "unique_id" in entry or "object_id" in entry or "name" in entry, \
+            payload = entry.get("payload", {})
+            assert "unique_id" in payload or "object_id" in payload or "name" in payload, \
                 f"Discovery entry missing identifiers: {entry}"
 
     def test_discovery_device_count_matches_registry(self, tmp_path: Path) -> None:
@@ -354,7 +355,9 @@ class TestPipelinePerformance:
         reg.seed()
 
         # Add devices to reach ~1000
-        for i in range(900):
+        base = reg.stats()["total"]
+        needed = max(0, 1000 - base)
+        for i in range(needed):
             reg.upsert(
                 Device(
                     id=f"sensor.load_{i:04d}",

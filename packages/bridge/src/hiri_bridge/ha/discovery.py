@@ -245,7 +245,10 @@ def discovery_payload(device: Device) -> dict:
     return base
 
 
-def export_discovery(devices: list[Device]) -> list[dict]:
+def export_discovery(devices: list[Device] | "DeviceRegistry") -> list[dict]:
+    from hiri_bridge.devices.registry import DeviceRegistry  # noqa: F811
+    if isinstance(devices, DeviceRegistry):
+        devices = devices.list()
     out = []
     for d in devices:
         out.append(

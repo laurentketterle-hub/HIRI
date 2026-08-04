@@ -678,6 +678,14 @@ class DeviceRegistry:
         self.save()
         return device
 
+    def delete(self, device_id: str) -> bool:
+        """Remove a device from the registry. Returns True if deleted, False if not found."""
+        if device_id in self._devices:
+            del self._devices[device_id]
+            self.save()
+            return True
+        return False
+
     def apply_command(self, device_id: str, action: str, data: dict | None = None) -> Device:
         dev = self._devices.get(device_id)
         if not dev:
