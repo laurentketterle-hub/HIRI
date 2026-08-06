@@ -15,6 +15,12 @@
     button { background: #0284c7; color: #fff; border: 0; padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer; }
     .ok { color: #4ade80; } .bad { color: #f87171; }
     pre { background: #1e293b; padding: 0.75rem; border-radius: 8px; overflow: auto; }
+
+    .offline-banner { display: none; background: #f59e0b; color: #0f172a; padding: 0.4rem 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem; }
+    .offline-banner.show { display: block; }
+    .slider-cell { display: flex; align-items: center; gap: 0.3rem; }
+    .slider-cell input[type=range] { width: 80px; height: 20px; }
+
   </style>
 </head>
 <body>
@@ -28,6 +34,7 @@
       <button id="reload">Làm mới</button>
       <button id="seed">Tạo dữ liệu mẫu</button>
     </p>
+    <div id="offlineBanner" class="offline-banner">⚠ Ngoại tuyến — hiển thị dữ liệu đã lưu</div>
     <p id="status" class="bad">Chưa kết nối</p>
     <table>
       <thead><tr><th>ID</th><th>Lĩnh vực</th><th>Tên</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
@@ -47,7 +54,7 @@
         tbody.innerHTML = devices.map(d => `<tr>
           <td>${d.id}</td><td>${d.domain}</td><td>${d.name}</td>
           <td><code>${JSON.stringify(d.state)}</code></td>
-          <td><button onclick="toggle('${d.id}')">Bật/Tắt</button></td></tr>`).join('');
+          <td><button onclick="toggle('${d.id}')">Bật/Tắt</button>${d.domain==='light' ? `<div class='slider-cell'><span>☀</span><input type=range min=1 max=255 value=${d.state?.brightness||128} onchange="cmd('${d.id}','turn_on',{brightness:parseInt(this.value)})" /></div>` : ''}</td></tr>`).join('');
       } catch (e) {
         statusEl.className = 'bad';
         statusEl.textContent = 'Bridge ngoại tuyến — chạy hiri-bridge serve — ' + e;
@@ -56,13 +63,77 @@
     document.getElementById('reload').onclick = load;
     document.getElementById('seed').onclick = async () => {
       await fetch(base() + '/devices/seed', { method: 'POST' });
-      load();
+  
+    window.addEventListener('online', () => {
+      document.getElementById('offlineBanner').classList.remove('show');
+    });
+    window.addEventListener('offline', () => {
+      document.getElementById('offlineBanner').classList.add('show');
+    });
+    if (!navigator.onLine) {
+      document.getElementById('offlineBanner').classList.add('show');
+    }
+
+    load();
     };
     async function toggle(id) {
-      await fetch(base() + `/devices/${id}/toggle`, { method: 'POST' });
-      load();
+      try { await fetch(base() + `/devices/${id}/toggle`, { method: 'POST' }); } catch(e) {}
+  
+    window.addEventListener('online', () => {
+      document.getElementById('offlineBanner').classList.remove('show');
+    });
+    window.addEventListener('offline', () => {
+      document.getElementById('offlineBanner').classList.add('show');
+    });
+    if (!navigator.onLine) {
+      document.getElementById('offlineBanner').classList.add('show');
     }
+
+    load();
+    }
+    async function cmd(id, action, data = {}) {
+      try {
+        await fetch(base() + '/devices/' + encodeURIComponent(id) + '/command', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action, ...data })
+        });
+      } catch(e) {}
+  
+    window.addEventListener('online', () => {
+      document.getElementById('offlineBanner').classList.remove('show');
+    });
+    window.addEventListener('offline', () => {
+      document.getElementById('offlineBanner').classList.add('show');
+    });
+    if (!navigator.onLine) {
+      document.getElementById('offlineBanner').classList.add('show');
+    }
+
+    load();
+    }
+
+    window.addEventListener('online', () => {
+      document.getElementById('offlineBanner').classList.remove('show');
+    });
+    window.addEventListener('offline', () => {
+      document.getElementById('offlineBanner').classList.add('show');
+    });
+    if (!navigator.onLine) {
+      document.getElementById('offlineBanner').classList.add('show');
+    }
+
     load();
   </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(function(reg) {
+        console.log('HIRI SW registered', reg.scope);
+      }).catch(function(err) {
+        console.log('HIRI SW failed', err);
+      });
+    }
+  </script>
+
 </body>
 </html>

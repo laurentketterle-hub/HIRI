@@ -18,6 +18,16 @@
     #status { margin: 0.5rem 0 1rem; }
     .err { color: #b91c1c; }
     .area-title { margin: 1.25rem 0 0.5rem; font-size: 1.05rem; color: #0c4a6e; border-bottom: 1px solid #cbd5e1; padding-bottom: 0.25rem; }
+
+    .offline-banner { display: none; background: #f59e0b; color: #0f172a; padding: 0.4rem 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem; }
+    .offline-banner.show { display: block; }
+    .slider-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.35rem; }
+    .slider-row input[type=range] { flex: 1; }
+    .slider-row span { min-width: 2.5rem; text-align: right; font-size: 0.8rem; }
+    .color-row { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.35rem; }
+    .color-swatch { width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
+    .color-swatch.active { border-color: #0284c7; }
+
   </style>
 </head>
 <body>
@@ -32,6 +42,7 @@
     <button id="reload" type="button">Reload</button>
     <button id="lang" type="button">VI / EN</button>
   </div>
+  <div id="offlineBanner" class="offline-banner">⚠ Offline — showing cached data</div>
   <div id="status" class="muted">Not loaded</div>
   <div id="rooms"></div>
   <script>
@@ -101,13 +112,44 @@
           card.innerHTML = `<h3>${d.name}</h3>
             <div class="muted">${d.id} · ${d.domain} · ${d.adapter || 'local'}</div>
             <pre class="muted">${JSON.stringify(d.state)}</pre>`;
-          if (['light','switch','fan','siren'].includes(d.domain)) {
+          if (d.domain === 'light') {
+            // On/Off
             const on = document.createElement('button');
-            on.textContent = 'On';
-            on.onclick = () => cmd(d.id, 'turn_on');
+            on.textContent = 'On'; on.onclick = () => cmd(d.id, 'turn_on');
             const off = document.createElement('button');
-            off.textContent = 'Off';
-            off.onclick = () => cmd(d.id, 'turn_off');
+            off.textContent = 'Off'; off.onclick = () => cmd(d.id, 'turn_off');
+            card.appendChild(on); card.appendChild(off);
+            // Brightness slider
+            const sliderRow = document.createElement('div');
+            sliderRow.className = 'slider-row';
+            const lbl = document.createElement('span');
+            lbl.textContent = '☀';
+            const slider = document.createElement('input');
+            slider.type = 'range'; slider.min = '1'; slider.max = '255';
+            slider.value = d.state?.brightness || 128;
+            slider.oninput = () => { lbl.textContent = slider.value; };
+            slider.onchange = () => cmd(d.id, 'turn_on', {brightness: parseInt(slider.value)});
+            sliderRow.appendChild(lbl); sliderRow.appendChild(slider);
+            card.appendChild(sliderRow);
+            // Color temp slider for lights that support it
+            if (d.attributes?.rgb || d.state?.color_temp !== undefined) {
+              const ctRow = document.createElement('div');
+              ctRow.className = 'slider-row';
+              const ctLbl = document.createElement('span');
+              ctLbl.textContent = '🌡';
+              const ctSlider = document.createElement('input');
+              ctSlider.type = 'range'; ctSlider.min = '153'; ctSlider.max = '500';
+              ctSlider.value = d.state?.color_temp || 350;
+              ctSlider.oninput = () => { ctLbl.textContent = ctSlider.value + 'K'; };
+              ctSlider.onchange = () => cmd(d.id, 'turn_on', {color_temp: parseInt(ctSlider.value)});
+              ctRow.appendChild(ctLbl); ctRow.appendChild(ctSlider);
+              card.appendChild(ctRow);
+            }
+          } else if (['switch','fan','siren'].includes(d.domain)) {
+            const on = document.createElement('button');
+            on.textContent = 'On'; on.onclick = () => cmd(d.id, 'turn_on');
+            const off = document.createElement('button');
+            off.textContent = 'Off'; off.onclick = () => cmd(d.id, 'turn_off');
             card.appendChild(on); card.appendChild(off);
           }
           grid.appendChild(card);
@@ -159,13 +201,29 @@
       }
     }
 
-    async function cmd(id, action) {
+    async function cmd(id, action, extraData = {}) {
       const base = document.getElementById('base').value.replace(/\/$/, '');
-      await fetch(base + '/devices/' + encodeURIComponent(id) + '/command', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action })
-      });
-      load();
+      try {
+        await fetch(base + '/devices/' + encodeURIComponent(id) + '/command', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action, ...extraData })
+        });
+      } catch(e) {
+        console.warn('cmd failed', e);
+      }
+  
+    // Offline detection
+    window.addEventListener('online', () => {
+      document.getElementById('offlineBanner').classList.remove('show');
+    });
+    window.addEventListener('offline', () => {
+      document.getElementById('offlineBanner').classList.add('show');
+    });
+    if (!navigator.onLine) {
+      document.getElementById('offlineBanner').classList.add('show');
+    }
+
+    load();
     }
 
     document.getElementById('reload').onclick = load;
@@ -177,7 +235,31 @@
       render();
     };
     applyLang();
+
+    // Offline detection
+    window.addEventListener('online', () => {
+      document.getElementById('offlineBanner').classList.remove('show');
+    });
+    window.addEventListener('offline', () => {
+      document.getElementById('offlineBanner').classList.add('show');
+    });
+    if (!navigator.onLine) {
+      document.getElementById('offlineBanner').classList.add('show');
+    }
+
     load();
   </script>
+
+  <script>
+    // Register service worker for offline cache
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(function(reg) {
+        console.log('HIRI SW registered', reg.scope);
+      }).catch(function(err) {
+        console.log('HIRI SW failed', err);
+      });
+    }
+  </script>
+
 </body>
 </html>
