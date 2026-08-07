@@ -2,18 +2,10 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
-from hiri_bridge.config import package_root
 from hiri_bridge.devices.registry import DeviceRegistry
-from hiri_bridge.devices.types import Device
 from hiri_bridge.ha.discovery import export_discovery
-
-
-def _device_pack() -> dict[str, dict]:
-    raw = (package_root() / "data" / "devices.json").read_text(encoding="utf-8")
-    return {device["id"]: device for device in json.loads(raw)}
 
 
 def test_switch_multigang_seed_present(tmp_path: Path) -> None:
@@ -61,16 +53,18 @@ def test_single_switch_omits_gang_topics(tmp_path: Path) -> None:
     assert payload["device_class"] == "switch"
 
 
-def test_irrigation_zone_switch_device_pack_entry() -> None:
-    zone = _device_pack().get("switch.irrigation_zone_a")
+def test_irrigation_zone_switch_device_pack_entry(tmp_path: Path) -> None:
+    reg = DeviceRegistry(path=tmp_path / "devices.json")
+    reg.seed()
+    zone = reg.get("switch.irrigation_zone_a")
 
     assert zone is not None
-    assert zone["name"] == "Irrigation zone A"
-    assert zone["domain"] == "switch"
-    assert zone["area"] == "farm"
-    assert zone["state"] == {"state": "off"}
-    assert zone["adapter"] == "mqtt"
+    assert zone.name == "Irrigation zone A"
+    assert zone.domain == "switch"
+    assert zone.area == "farm"
+    assert zone.state == {"state": "off"}
+    assert zone.adapter == "mqtt"
 
-    payload = export_discovery([Device.model_validate(zone)])[0]["payload"]
+    payload = export_discovery([zone])[0]["payload"]
     assert payload["device_class"] == "switch"
     assert payload["command_topic"].endswith("/cmd/switch/irrigation_zone_a")

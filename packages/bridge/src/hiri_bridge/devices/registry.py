@@ -421,6 +421,15 @@ def default_seed_devices() -> list[Device]:
             adapter="mqtt",
         ),
         Device(
+            id="switch.irrigation_zone_a",
+            name="Irrigation zone A",
+            domain="switch",
+            model="HIRI-RELAY",
+            area="farm",
+            state={"state": "off"},
+            adapter="mqtt",
+        ),
+        Device(
             id="light.office_desk",
             name="Office desk lamp",
             domain="light",
