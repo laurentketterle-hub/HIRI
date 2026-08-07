@@ -221,7 +221,7 @@ def devices_sim_history(
 
 @devices_app.command("export")
 def devices_export(
-    out: Path = typer.Option(..., "--out", "-o", help="Output JSON file path"),
+    out: Path = typer.Option(..., "--out", "-o", help="Output JSON file path"),  # noqa: B008
 ) -> None:
     """Export device registry as a JSON snapshot (no tokens/secrets)."""
     reg = _registry()
@@ -232,7 +232,7 @@ def devices_export(
 
 
 @ha_app.command("discovery")
-def ha_discovery(out: Path | None = typer.Option(None, "--out", "-o")) -> None:
+def ha_discovery(out: Path | None = typer.Option(None, "--out", "-o")) -> None:  # noqa: B008
     reg = _registry()
     disc = export_discovery(reg.list())
     path = out or (OUT_DIR / "discovery.json")
@@ -243,7 +243,7 @@ def ha_discovery(out: Path | None = typer.Option(None, "--out", "-o")) -> None:
 
 @ha_app.command("entity-mapping")
 def ha_entity_mapping(
-    out: Path | None = typer.Option(None, "--out", "-o"),
+    out: Path | None = typer.Option(None, "--out", "-o"),  # noqa: B008
 ) -> None:
     """Export device-to-entity mapping for HA configuration."""
     reg = _registry()

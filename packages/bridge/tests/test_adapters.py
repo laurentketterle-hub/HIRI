@@ -1,5 +1,6 @@
 # Tests pour les adaptateurs bridge (Issues 4, 5, 7)
 from pathlib import Path
+
 from hiri_bridge.adapters import import_from_adapter, list_adapters
 from hiri_bridge.adapters.matter import MatterAdapter
 from hiri_bridge.adapters.mqtt_pub import MqttDiscoveryPublisher

@@ -112,7 +112,7 @@ class HomeAssistantWebSocketAdapter:
                     message = json.loads(raw)
                     if sync_event_to_registry(registry, message, adapter=self):
                         synced += 1
-        except Exception:
+        except Exception:  # noqa: BLE001
             return synced
         return synced
 

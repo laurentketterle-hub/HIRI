@@ -78,7 +78,7 @@ class MatterAdapter:
 
     def push_state(self, device: Device) -> None:
         """Pousse l'état d'un appareil vers le fabric Matter (non implémenté)."""
-        return None
+        return
 
     def status(self) -> str:
         return "scaffold — SDK Matter requis"

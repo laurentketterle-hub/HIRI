@@ -13,6 +13,7 @@ def test_devices_export_writes_json(tmp_path: Path) -> None:
         [sys.executable, "-m", "hiri_bridge.cli", "devices", "export", "--out", str(out)],
         capture_output=True,
         text=True,
+        check=False,
     )
     assert result.returncode == 0, f"stdout={result.stdout} stderr={result.stderr}"
     assert out.exists(), f"Expected {out} to exist. stderr={result.stderr}"
@@ -52,6 +53,7 @@ def test_devices_export_creates_parent_dirs(tmp_path: Path) -> None:
         [sys.executable, "-m", "hiri_bridge.cli", "devices", "export", "--out", str(out)],
         capture_output=True,
         text=True,
+        check=False,
     )
     assert result.returncode == 0, f"stdout={result.stdout} stderr={result.stderr}"
     assert out.exists()
@@ -63,5 +65,6 @@ def test_devices_export_requires_out_option() -> None:
         [sys.executable, "-m", "hiri_bridge.cli", "devices", "export"],
         capture_output=True,
         text=True,
+        check=False,
     )
     assert result.returncode != 0, "export without --out should fail"

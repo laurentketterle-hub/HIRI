@@ -1,5 +1,5 @@
-from hiri_bridge.sensors.sim import dht22_reading, soil_moisture_reading, tick_farm_sensors
 from hiri_bridge.devices.types import Device
+from hiri_bridge.sensors.sim import dht22_reading, soil_moisture_reading, tick_farm_sensors
 
 
 def test_dht22_bounds() -> None:

@@ -20,6 +20,7 @@ def test_post_protected_when_token_set(monkeypatch):
     """Test : avec HIRI_API_TOKEN, les POST sans Bearer sont rejetes (401)."""
     monkeypatch.setenv("HIRI_API_TOKEN", "secret-test-token")
     import importlib
+
     import hiri_bridge.api as api_mod
 
     importlib.reload(api_mod)
@@ -49,6 +50,7 @@ def test_api_health_reports_auth_status(monkeypatch):
     """Test : /health indique auth_required quand le token est defini."""
     monkeypatch.setenv("HIRI_API_TOKEN", "test-key")
     import importlib
+
     import hiri_bridge.api as api_mod
 
     importlib.reload(api_mod)
@@ -64,6 +66,7 @@ def test_get_devices_always_open(monkeypatch):
     """Test : GET /devices reste accessible meme avec token."""
     monkeypatch.setenv("HIRI_API_TOKEN", "key")
     import importlib
+
     import hiri_bridge.api as api_mod
 
     importlib.reload(api_mod)
@@ -78,6 +81,7 @@ def test_put_protected(monkeypatch):
     """Test : PUT sans token est protege."""
     monkeypatch.setenv("HIRI_API_TOKEN", "key")
     import importlib
+
     import hiri_bridge.api as api_mod
 
     importlib.reload(api_mod)
