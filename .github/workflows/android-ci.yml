@@ -1,0 +1,29 @@
+name: android-ci
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'packages/android/**'
+  pull_request:
+    paths:
+      - 'packages/android/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          generate-job-summary: false
+      - run: gradle wrapper --gradle-version 8.11
+      - run: ./gradlew assembleDebug
+      - run: ./gradlew lint
