@@ -1066,5 +1066,19 @@
       ]
     },
     "adapter": "mqtt"
+  },
+  {
+    "id": "switch.irrigation_zone_a",
+    "name": "Irrigation zone A",
+    "domain": "switch",
+    "manufacturer": "HIRI",
+    "model": "HIRI-RELAY",
+    "area": "farm",
+    "online": true,
+    "state": {
+      "state": "off"
+    },
+    "attributes": {},
+    "adapter": "mqtt"
   }
 ]
