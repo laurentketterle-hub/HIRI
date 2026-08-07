@@ -1,7 +1,6 @@
 """Tests pour la publication MQTT discovery (Issue #3)."""
 from __future__ import annotations
 
-import json
 from unittest.mock import MagicMock, patch
 
 from hiri_bridge.adapters.mqtt_pub import MqttDiscoveryPublisher
@@ -68,13 +67,16 @@ def test_topics_are_consistent():
     assert st == "hiri/state/light/living"
 
 
-@patch("hiri_bridge.adapters.mqtt_pub.mqtt")
-def test_live_publish_mock_client(mock_mqtt):
+@patch("paho.mqtt.client.Client", create=True)
+def test_live_publish_mock_client(mock_client_class):
     """Test : la publication live utilise paho-mqtt."""
     mock_client = MagicMock()
-    mock_mqtt.Client.return_value = mock_client
-    mock_mqtt.CallbackAPIVersion = MagicMock()
-    mock_mqtt.CallbackAPIVersion.VERSION2 = 2
+    mock_client_class.return_value = mock_client
+
+    # Mock CallbackAPIVersion
+    import paho.mqtt.client as mqtt_mod
+    mqtt_mod.CallbackAPIVersion = MagicMock()
+    mqtt_mod.CallbackAPIVersion.VERSION2 = 2
 
     dev = Device(id="light.test", name="Test", domain="light")
     pub = MqttDiscoveryPublisher(host="localhost", port=1883)
