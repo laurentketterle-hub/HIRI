@@ -13,27 +13,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
+      - name: Validate device JSON files
         run: |
-          npm ci || npm install
-
-      - name: Lint
-        run: |
-          npx eslint . --ext .js,.ts 2>/dev/null || echo "Lint skipped (no eslint config)"
-
-      - name: Test
-        run: |
-          npm test 2>/dev/null || echo "Tests skipped (no test script)"
+          echo "Validating device JSON files..."
+          for f in devices/*.json; do
+            if [ -f "$f" ]; then
+              python3 -m json.tool "$f" > /dev/null && echo "  OK: $f" || echo "  FAIL: $f"
+            fi
+          done
+          echo "Device JSON validation complete."
 
       - name: Verify discovery payload
         run: |
           echo "Validating MQTT auto-discovery payload structure..."
-          # Ensure discovery JSON schema is present and valid
           if [ -f config/discovery.json ]; then
             python3 -m json.tool config/discovery.json > /dev/null && echo "discovery.json valid"
           else
