@@ -22,7 +22,10 @@ class HomeAssistantRestAdapter:
 
             req = urllib.request.Request(
                 f"{self.base_url}/api/states",
-                headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"},
+                headers={
+                    "Authorization": f"Bearer {self.token}",
+                    "Content-Type": "application/json",
+                },
             )
             with urllib.request.urlopen(req, timeout=5) as resp:
                 states = json.loads(resp.read().decode("utf-8"))

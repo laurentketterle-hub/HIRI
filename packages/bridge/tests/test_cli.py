@@ -1,4 +1,5 @@
 """Tests pour la CLI hiri-bridge (Issue #2)."""
+
 from __future__ import annotations
 
 from typer.testing import CliRunner

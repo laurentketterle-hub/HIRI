@@ -21,7 +21,9 @@ def test_motion_sensor_has_off_delay(tmp_path: Path) -> None:
     reg = DeviceRegistry(path=tmp_path / "devices.json")
     reg.seed()
     motion = next(
-        d for d in reg.list() if d.domain == "binary_sensor" and d.attributes.get("device_class") == "motion"
+        d
+        for d in reg.list()
+        if d.domain == "binary_sensor" and d.attributes.get("device_class") == "motion"
     )
     assert motion.attributes["off_delay"] == 30
 

@@ -1,4 +1,5 @@
 """Tests pour le middleware de token API admin (Issue #19)."""
+
 from __future__ import annotations
 
 import pytest
@@ -11,6 +12,7 @@ def test_auth_optional_when_unset(monkeypatch):
     """Test : sans HIRI_API_TOKEN, le middleware laisse tout passer."""
     monkeypatch.delenv("HIRI_API_TOKEN", raising=False)
     from hiri_bridge.auth import api_token
+
     assert api_token() == ""
 
 
@@ -19,6 +21,7 @@ def test_post_protected_when_token_set(monkeypatch):
     monkeypatch.setenv("HIRI_API_TOKEN", "secret-test-token")
     import importlib
     import hiri_bridge.api as api_mod
+
     importlib.reload(api_mod)
     client = TestClient(api_mod.app)
 
@@ -47,6 +50,7 @@ def test_api_health_reports_auth_status(monkeypatch):
     monkeypatch.setenv("HIRI_API_TOKEN", "test-key")
     import importlib
     import hiri_bridge.api as api_mod
+
     importlib.reload(api_mod)
     client = TestClient(api_mod.app)
     r = client.get("/health")
@@ -61,6 +65,7 @@ def test_get_devices_always_open(monkeypatch):
     monkeypatch.setenv("HIRI_API_TOKEN", "key")
     import importlib
     import hiri_bridge.api as api_mod
+
     importlib.reload(api_mod)
     client = TestClient(api_mod.app)
     r = client.get("/devices")
@@ -74,6 +79,7 @@ def test_put_protected(monkeypatch):
     monkeypatch.setenv("HIRI_API_TOKEN", "key")
     import importlib
     import hiri_bridge.api as api_mod
+
     importlib.reload(api_mod)
     client = TestClient(api_mod.app)
     r = client.put("/devices/test.id", json={"name": "test"})

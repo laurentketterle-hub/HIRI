@@ -33,7 +33,9 @@ def list_adapters() -> list[dict[str, Any]]:
             "kind": "http",
             "live": True,
             "description": "Home Assistant REST /api/states import",
-            "status": "token required for live" if not HomeAssistantRestAdapter().token else "configured",
+            "status": "token required for live"
+            if not HomeAssistantRestAdapter().token
+            else "configured",
         },
         {
             "name": "ha_ws",

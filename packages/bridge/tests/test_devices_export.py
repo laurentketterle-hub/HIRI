@@ -6,7 +6,6 @@ import sys
 from pathlib import Path
 
 
-
 def test_devices_export_writes_json(tmp_path: Path) -> None:
     """hiri-bridge devices export --out writes device registry snapshot."""
     out = tmp_path / "snapshot.json"
@@ -24,7 +23,17 @@ def test_devices_export_writes_json(tmp_path: Path) -> None:
 
     # Check structure of first device
     d = data[0]
-    for field in ("id", "name", "domain", "manufacturer", "model", "area", "online", "state", "adapter"):
+    for field in (
+        "id",
+        "name",
+        "domain",
+        "manufacturer",
+        "model",
+        "area",
+        "online",
+        "state",
+        "adapter",
+    ):
         assert field in d, f"Device missing field: {field}"
 
     # Verify no tokens/secrets leaked

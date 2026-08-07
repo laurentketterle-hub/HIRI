@@ -1,4 +1,5 @@
 """Tests pour la publication MQTT discovery (Issue #3)."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
@@ -75,6 +76,7 @@ def test_live_publish_mock_client(mock_client_class):
 
     # Mock CallbackAPIVersion
     import paho.mqtt.client as mqtt_mod
+
     mqtt_mod.CallbackAPIVersion = MagicMock()
     mqtt_mod.CallbackAPIVersion.VERSION2 = 2
 

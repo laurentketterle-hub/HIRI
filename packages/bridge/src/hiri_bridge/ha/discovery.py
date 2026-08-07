@@ -50,12 +50,8 @@ def discovery_payload(device: Device) -> dict:
             # Multi-gang relay: expose per-channel command/state topics so HA
             # can render one switch entity per physical gang.
             base["gang_count"] = len(gangs)
-            base["gang_command_topics"] = {
-                g: command_topic(device) + f"/{g}" for g in gangs
-            }
-            base["gang_state_topics"] = {
-                g: state_topic(device) + f"/{g}" for g in gangs
-            }
+            base["gang_command_topics"] = {g: command_topic(device) + f"/{g}" for g in gangs}
+            base["gang_state_topics"] = {g: state_topic(device) + f"/{g}" for g in gangs}
     if domain == "light":
         base["brightness"] = True
         base["brightness_scale"] = 255
@@ -66,9 +62,7 @@ def discovery_payload(device: Device) -> dict:
             base["effect"] = True
             base["effect_list"] = device.attributes["effect_list"]
     if domain == "climate":
-        base["modes"] = device.attributes.get(
-            "hvac_modes", ["off", "heat", "cool", "auto"]
-        )
+        base["modes"] = device.attributes.get("hvac_modes", ["off", "heat", "cool", "auto"])
         base["min_temp"] = device.attributes.get("min_temp", 16)
         base["max_temp"] = device.attributes.get("max_temp", 30)
         base["temp_step"] = 0.5

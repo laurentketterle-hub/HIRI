@@ -7,11 +7,13 @@ from hiri_bridge.adapters.tuya import TuyaAdapter
 from hiri_bridge.adapters.z2m import Zigbee2MqttAdapter
 from hiri_bridge.devices.registry import DeviceRegistry
 
+
 def test_list_adapters_includes_matter():
     rows = list_adapters()
     names = {r["name"] for r in rows}
     assert "matter" in names
     assert {"local", "mqtt", "ha_rest", "ha_ws", "z2m", "tuya", "matter"}.issubset(names)
+
 
 def test_list_adapters_all_have_required_fields():
     for row in list_adapters():
@@ -20,6 +22,7 @@ def test_list_adapters_all_have_required_fields():
         assert "live" in row
         assert "status" in row
         assert "description" in row
+
 
 def test_z2m_fixture_import():
     devices = Zigbee2MqttAdapter().list_remote()
@@ -33,16 +36,19 @@ def test_z2m_fixture_import():
         assert d.manufacturer
         assert d.area
 
+
 def test_z2m_fixture_area_extraction():
     devices = Zigbee2MqttAdapter().list_remote()
     areas = {d.area for d in devices}
     assert "kitchen" in areas or "living" in areas or "hall" in areas
+
 
 def test_tuya_fixture_and_map():
     devices = TuyaAdapter().list_remote()
     assert len(devices) >= 3
     assert "dj" in TuyaAdapter.mapping_table()
     assert all(d.adapter == "tuya" for d in devices)
+
 
 def test_tuya_mapping_table_complete():
     mapping = TuyaAdapter.mapping_table()
@@ -52,12 +58,14 @@ def test_tuya_mapping_table_complete():
     assert mapping["wsdcg"] == "sensor"
     assert mapping["mcs"] == "binary_sensor"
 
+
 def test_tuya_online_flag():
     devices = TuyaAdapter().list_remote()
     online = [d for d in devices if d.online]
     offline = [d for d in devices if not d.online]
     assert len(online) >= 2
     assert len(offline) >= 1
+
 
 def test_matter_adapter_scaffold():
     adapter = MatterAdapter()
@@ -69,6 +77,7 @@ def test_matter_adapter_scaffold():
     assert "switch" in mapping
     assert mapping["light"]["device_type_id"] == 0x010D
 
+
 def test_matter_supported_domains():
     domains = MatterAdapter.supported_domains()
     assert "light" in domains
@@ -79,6 +88,7 @@ def test_matter_supported_domains():
     assert "lock" in domains
     assert "fan" in domains
 
+
 def test_import_into_registry(tmp_path: Path):
     reg = DeviceRegistry(path=tmp_path / "d.json")
     reg.seed()
@@ -86,6 +96,7 @@ def test_import_into_registry(tmp_path: Path):
     for d in import_from_adapter("z2m"):
         reg.upsert(d)
     assert reg.stats()["total"] > before
+
 
 def test_import_tuya_into_registry(tmp_path: Path):
     reg = DeviceRegistry(path=tmp_path / "d.json")
@@ -96,8 +107,10 @@ def test_import_tuya_into_registry(tmp_path: Path):
     after = reg.stats()["total"]
     assert after >= before
 
+
 def test_ha_ws_import_is_offline_safe():
     assert import_from_adapter("ha_ws") == []
+
 
 def test_mqtt_dry_run(tmp_path: Path):
     reg = DeviceRegistry(path=tmp_path / "d.json")
