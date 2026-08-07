@@ -1,5 +1,6 @@
 import asyncio
 
+
 class WebRTCStreamProxy:
     def __init__(self, rtsp_url):
         self.rtsp_url = rtsp_url
