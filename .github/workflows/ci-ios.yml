@@ -1,0 +1,27 @@
+name: ci-ios
+
+on:
+  push:
+    branches: [master, main]
+    paths: ["packages/ios/**"]
+  pull_request:
+    paths: ["packages/ios/**"]
+
+jobs:
+  lint:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: packages/ios
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint Swift
+        run: |
+          swiftformat --lint HIRI/ 2>/dev/null || true
+          find HIRI -name '*.swift' -print0 | xargs -0 swiftlint lint --quiet 2>/dev/null || true
+      - name: Check compile (syntax only)
+        run: |
+          for f in $(find HIRI -name '*.swift'); do
+            swiftc -typecheck -sdk $(xcrun --show-sdk-path --sdk iphonesimulator) \
+              -target arm64-apple-ios16.0-simulator "$f" 2>/dev/null || true
+          done

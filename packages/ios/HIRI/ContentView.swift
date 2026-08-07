@@ -1,6 +1,10 @@
-import Foundation
+import SwiftUI
 
-/// Placeholder — full SwiftUI UI is a bounty.
-struct HIRIConfig {
-    static let apiBase = "http://127.0.0.1:8780"
+/// Root content view — delegating to the full device list.
+struct ContentView: View {
+    @EnvironmentObject var service: HIRIService
+
+    var body: some View {
+        DeviceListView()
+    }
 }
